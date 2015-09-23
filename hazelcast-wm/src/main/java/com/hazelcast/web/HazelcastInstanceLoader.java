@@ -27,6 +27,8 @@ import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.logging.ILogger;
 import com.hazelcast.logging.Logger;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.web.context.WebApplicationContext;
 
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
@@ -43,6 +45,8 @@ final class HazelcastInstanceLoader {
     public static final String INSTANCE_NAME = "instance-name";
     public static final String CONFIG_LOCATION = "config-location";
     public static final String USE_CLIENT = "use-client";
+    public static final String USE_SPRING_BEAN = "use-spring-bean";
+    public static final String SPRING_BEAN_NAME = "spring-bean-name";
     public static final String CLIENT_CONFIG_LOCATION = "client-config-location";
 
     private static final ILogger LOGGER = Logger.getLogger(HazelcastInstanceLoader.class);
@@ -55,8 +59,21 @@ final class HazelcastInstanceLoader {
         final String instanceName = properties.getProperty(INSTANCE_NAME);
         final String configLocation = properties.getProperty(CONFIG_LOCATION);
         final String useClientProp = properties.getProperty(USE_CLIENT);
+        final String useSpringBeanProp = filterConfig.getInitParameter(USE_SPRING_BEAN);
+        final String springBeanName = filterConfig.getInitParameter(SPRING_BEAN_NAME);
         final String clientConfigLocation = properties.getProperty(CLIENT_CONFIG_LOCATION);
         final boolean useClient = !isEmpty(useClientProp) && Boolean.parseBoolean(useClientProp);
+        final boolean useSpringBean = !isEmpty(useSpringBeanProp) && Boolean.parseBoolean(useSpringBeanProp);
+        if (useSpringBean) {
+            final Object contextAttribute = filterConfig.getServletContext().getAttribute(WebApplicationContext
+                    .ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
+            if (contextAttribute instanceof BeanFactory) {
+                final BeanFactory springContext = (BeanFactory) contextAttribute;
+                return springContext.getBean(springBeanName, HazelcastInstance.class);
+            } else {
+                throw new ServletException("Can NOT locate ROOT spring context - spring context = " + contextAttribute);
+            }
+        }
         URL configUrl = null;
         if (useClient && !isEmpty(clientConfigLocation)) {
             configUrl = getConfigURL(filterConfig, clientConfigLocation);
@@ -82,7 +99,8 @@ final class HazelcastInstanceLoader {
     private static HazelcastInstance createHazelcastInstance(String instanceName, Config config) {
         if (!isEmpty(instanceName)) {
             if (LOGGER.isLoggable(Level.INFO)) {
-                LOGGER.info(format("getOrCreateHazelcastInstance for session replication, using name '%s'", instanceName));
+                LOGGER.info(format("getOrCreateHazelcastInstance for session replication, using name '%s'",
+                        instanceName));
             }
             config.setInstanceName(instanceName);
             return Hazelcast.getOrCreateHazelcastInstance(config);
@@ -109,7 +127,8 @@ final class HazelcastInstanceLoader {
         return HazelcastClient.newHazelcastClient(clientConfig);
     }
 
-    private static URL getConfigURL(final FilterConfig filterConfig, final String configLocation) throws ServletException {
+    private static URL getConfigURL(final FilterConfig filterConfig, final String configLocation) throws
+            ServletException {
         URL configUrl = null;
         try {
             configUrl = filterConfig.getServletContext().getResource(configLocation);

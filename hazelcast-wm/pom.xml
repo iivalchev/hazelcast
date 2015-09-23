@@ -22,6 +22,7 @@
 
     <name>hazelcast-wm</name>
     <artifactId>hazelcast-wm</artifactId>
+    <version>3.5.2-wm</version>
     <packaging>jar</packaging>
 
 
@@ -35,7 +36,8 @@
     <properties>
         <jsp.api.version>2.2.1</jsp.api.version>
         <servlet.api.version>3.0.1</servlet.api.version>
-        <org.springframework.version>3.2.1.RELEASE</org.springframework.version>
+        <org.springframework.security.version>3.2.3.RELEASE</org.springframework.security.version>
+        <org.springframework.core.version>4.1.6.RELEASE</org.springframework.core.version>
         <jetty.maven.plugin.version>8.1.2.v20120308</jetty.maven.plugin.version>
         <tomcat.version>7.0.54</tomcat.version>
         <!-- needed for checkstyle/findbugs -->
@@ -179,37 +181,37 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
-            <version>${org.springframework.version}</version>
+            <version>${org.springframework.core.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
-            <version>${org.springframework.version}</version>
+            <version>${org.springframework.core.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-web</artifactId>
-            <version>${org.springframework.version}</version>
+            <version>${org.springframework.security.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-web</artifactId>
-            <version>${org.springframework.version}</version>
+            <version>${org.springframework.core.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-webmvc</artifactId>
-            <version>${org.springframework.version}</version>
+            <version>${org.springframework.core.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-config</artifactId>
-            <version>${org.springframework.version}</version>
+            <version>${org.springframework.security.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
